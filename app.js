@@ -112,8 +112,24 @@ app.get('/addexpense', (_req, res) => {
     // add service
 });
 
-app.get('/deleteexpense', (_req, res) => {
-    // delete service
+app.delete('/deleteexpense/:id', (req, res) => {
+    const id = req.params.id;
+    const username = req.query.username;
+
+    // ดึง user_id จาก username
+    const sql_id = "SELECT id FROM users WHERE username = ?";
+    con.query(sql_id, [username], function (err, userid) {
+        if (err) return res.status(500).send("Database server error");
+        if (userid.length === 0) return res.status(404).send("User not found.");
+
+        // ลบเฉพาะถ้าเป็นของ user นี้เท่านั้น
+        const sql = "DELETE FROM expense WHERE id = ? AND user_id = ?";
+        con.query(sql, [id, userid[0].id], function (err, result) {
+            if (err) return res.status(500).send("Database server error");
+            if (result.affectedRows === 0) return res.status(404).send("Expense not found or not owned by user.");
+            res.send("Expense deleted successfully");
+        });
+    });
 });
 
 
