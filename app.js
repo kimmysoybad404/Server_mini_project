@@ -108,9 +108,28 @@ app.get('/searchexpense', (_req, res) => {
 });
 
 
-app.get('/addexpense', (_req, res) => {
-    // add service
+app.post('/addexpense', (req, res) => {
+    const { username, item, paid } = req.body;
+
+    if (!username || !item || !paid) {
+        return res.status(400).send("Incomplete data");
+    }
+
+    // หา user_id จาก username
+    const sql_id = "SELECT id FROM users WHERE username = ?";
+    con.query(sql_id, [username], (err, userid) => {
+        if (err) return res.status(500).send("Database server error");
+        if (userid.length === 0) return res.status(404).send("User not found.");
+
+        // insert expense
+        const sql = "INSERT INTO expense (user_id, item, paid, date) VALUES (?, ?, ?, NOW())";
+        con.query(sql, [userid[0].id, item, parseInt(paid)], (err, result) => {
+            if (err) return res.status(500).send("Database server error");
+            res.send("Expense added successfully");
+        });
+    });
 });
+
 
 app.delete('/deleteexpense/:id', (req, res) => {
     const id = req.params.id;
