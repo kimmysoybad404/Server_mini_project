@@ -83,9 +83,30 @@ app.get('/todayexpense', (_req, res) => {
 
 });
 
+// search expense service
 app.get('/searchexpense', (_req, res) => {
-    // search service
+    const username = _req.query.username;
+    const keyword = _req.query.keyword;
+
+    const sql_id = "SELECT id FROM users WHERE username = ?";
+    con.query(sql_id, [username], function (err, userid) {
+        if (err) {
+            return res.status(500).send("Database server error");
+        }
+        if (userid.length === 0) {
+            return res.status(404).send("User not found.");
+        }
+
+        const sql = "SELECT * FROM expense WHERE user_id = ? AND item LIKE ?";
+        con.query(sql, [userid[0].id, `%${keyword}%`], function (err, results) {
+            if (err) {
+                return res.status(500).send("Database server error");
+            }
+            res.json(results);
+        });
+    });
 });
+
 
 app.get('/addexpense', (_req, res) => {
     // add service
