@@ -1,0 +1,2 @@
+Download database in Database folder and do your service
+to run server for check test program type node --watch app.js
