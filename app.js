@@ -112,11 +112,6 @@ app.get('/addexpense', (_req, res) => {
     // add service
 });
 
-// delete expense service (ตรวจสอบ user ด้วย)
-app.delete('/deleteexpense/:id', (req, res) => {
-    const id = req.params.id;
-    const username = req.query.username;
-
     // ดึง user_id จาก username
     const sql_id = "SELECT id FROM users WHERE username = ?";
     con.query(sql_id, [username], function (err, userid) {
